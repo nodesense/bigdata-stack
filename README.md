@@ -11,16 +11,42 @@ Big data stack running in pseudo-distributed mode with the following components:
 
 For more details see the following [post](https://johs.me/posts/big-data-stack-running-sql-queries/).
 
-## Setup 
+## Data Setup 
 
+The data shall be stored in below host path..
 
+```
 
 sudo rm -rf /data
 
 sudo mkdir /data
 sudo chmod 7777 /data
 
+```
 
+# Network 
+
+To make easy access from host machine while you develop and test code, the network range is pre-defined 
+and some IPs are hard binded in the docker compose files..
+
+To ensure create network before running docker compose..
+
+```
+docker network ls
+
+
+docker network create --driver bridge --gateway 172.20.0.1 --subnet 172.20.0.0/24  bigdatanet
+
+docker network inspect bigdatanet
+
+
+```
+
+DO NOT RUN THIS 
+
+```
+docker network rm  bigdatanet
+```
 
 
 ## Quick start
@@ -54,6 +80,22 @@ The stack should now be up and running and the following services available:
  - Presto: [http://localhost:8080](http://localhost:8080)
  - Superset: [http://localhost:8088](http://localhost:8088)
  - Hue: [http://localhost:8888](http://localhost:8888)
+
+
+## Update host mahcine with hard binding ip
+
+on the host node
+
+nano /etc/hosts
+
+```
+172.20.0.100 namenode.bigdata.training.sh
+172.20.0.101 hive-server.bigdata.training.sh
+172.20.0.102 hive-metastore.bigdata.training.sh
+172.20.0.105 minio.bigdata.training.sh
+172.20.0.111 spark-master.bigdata.training.sh
+```
+
 
 ## Contents
 
