@@ -113,3 +113,64 @@ services:
     command: server /data
     networks:
       - base_net
+
+
+
+  postgresdb:
+    image: postgres:12.7
+    container_name: postgresdb
+    hostname: postgresdb.bigdata.training.sh
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      #POSTGRES_DB: bigdb
+      POSTGRES_MULTIPLE_DATABASES: bigdb,hue,superset,grafana
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+    volumes:
+      - ${DATADIR}/postgresdb/postgres:/var/lib/postgresql/data
+      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    networks:
+      - base_net
+
+
+  superset:
+    image: amancevice/superset:0.35.1
+    container_name: superset
+    hostname: superset.bigdata.training.sh
+    restart: always
+    depends_on:
+      - postgresdb
+      - superset-redis
+    environment:
+      MAPBOX_API_KEY: ${MAPBOX_API_KEY}
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./superset/config/superset_config.py:/etc/superset/superset_config.py
+    networks:
+      - base_net
+
+  superset-redis:
+    image: redis:3.2
+    restart: always
+    volumes:
+      - ${DATADIR}/superset/redis:/data
+    networks:
+      - base_net
+
+
+  hue:
+    image: johannestang/hue:4.5.0-presto326
+    container_name: hue
+    hostname: hue.bigdata.training.sh
+    restart: always
+    depends_on:
+      - postgresdb
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./hue/config/hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
+    networks:
+      - base_net

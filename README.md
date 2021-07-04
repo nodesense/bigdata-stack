@@ -20,7 +20,7 @@ The data shall be stored in below host path..
 sudo rm -rf /data
 
 sudo mkdir /data
-sudo chmod 7777 /data
+sudo chmod 777 /data
 
 ```
 
@@ -47,6 +47,21 @@ DO NOT RUN THIS
 ```
 docker network rm  bigdatanet
 ```
+
+
+# Databases
+
+PGPASSWORD=admin psql -U admin  postgres
+
+
+then in the sql prompt,
+
+SELECT datname FROM pg_database;
+
+or 
+
+\l
+
 
 
 ## Quick start

@@ -8,7 +8,7 @@ services:
     image: johannestang/hue:4.5.0-presto326
     restart: always
     depends_on:
-      - hue-postgres
+      - postgresdb
     ports:
       - "8888:8888"
     volumes:
@@ -16,17 +16,17 @@ services:
     networks:
       - hue_net
 
-  hue-postgres:
-    image: postgres:10
-    restart: always
-    environment:
-      POSTGRES_DB: hue
-      POSTGRES_PASSWORD: hue
-      POSTGRES_USER: hue
-    volumes:
-      - ${DATADIR}/hue/postgres:/var/lib/postgresql/data
-    networks:
-      - hue_net
+  # hue-postgres:
+  #   image: postgres:10
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: hue
+  #     POSTGRES_PASSWORD: hue
+  #     POSTGRES_USER: hue
+  #   volumes:
+  #     - ${DATADIR}/hue/postgres:/var/lib/postgresql/data
+  #   networks:
+  #     - hue_net
 
 networks:
   hue_net:
