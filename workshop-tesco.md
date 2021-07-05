@@ -61,7 +61,6 @@ cd ~/bigdata-stack
  
 
 ./scripts/init-hue.sh
-./scripts/init-superset.sh
 ```
 
 ensure local spark cluster is terminated 
