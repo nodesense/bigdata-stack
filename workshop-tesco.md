@@ -3,19 +3,25 @@
 open terminal 
 
 ```
+cd ~ 
+
+rm -rf ~/bigdata
+
+mkdir ~/bigdata
+
+chmod 777 ~/bigdata
+
+```
+
+open terminal
+
+```
 git clone https://github.com/nodesense/bigdata-stack
 
 
 cd bigdata-stack 
 
 
-
-sudo rm -rf /data
-
-sudo mkdir /data
-
-
-sudo chmod 777 /data
 
 
 
@@ -27,6 +33,30 @@ docker network create --driver bridge --gateway 172.20.0.1 --subnet 172.20.0.0/2
 docker network inspect bigdatanet
 
 
+
+cp sample.env .env
+
+
+pwd 
+
+/Users/krish/bigdata-stack
+
+open .env file  in the editor, change DATADIR, beware of the username
+
+
+DATADIR=/Users/krish/bigdata
+
+save the file..
+
+
+docker-compose up  
+
+
+open new terminal, 
+
+
+
+
 ./scripts/init-hue.sh
 ./scripts/init-superset.sh
 ```
@@ -35,7 +65,7 @@ ensure local spark cluster is terminated
 
 ```
 
-docker-compose up -d
+
 ```
 
 Check below in browser..
