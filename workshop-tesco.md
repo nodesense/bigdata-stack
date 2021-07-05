@@ -43,6 +43,8 @@ pwd
 
 open .env file  in the editor, change DATADIR, beware of the username
 
+open .env
+
 
 DATADIR=/Users/krish/bigdata
 
@@ -55,7 +57,8 @@ docker-compose up
 open new terminal, 
 
 
-
+cd ~/bigdata-stack 
+ 
 
 ./scripts/init-hue.sh
 ./scripts/init-superset.sh
