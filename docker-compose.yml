@@ -29,6 +29,8 @@ services:
 
   datanode:
     image: johannestang/hadoop-datanode:2.0.0-hadoop2.8.5-java8
+    container_name: datanode
+    hostname: datanode.bigdata.training.sh
     restart: always
     volumes:
       - ${DATADIR}/datanode:/hadoop/dfs/data
@@ -38,8 +40,11 @@ services:
       SERVICE_PRECONDITION: "namenode:50070"
     ports:
       - "50075:50075"
+      - "50010:50010"
     networks:
-      - base_net
+      base_net:
+        ipv4_address: 172.20.0.101
+
 
   # Hive
 
