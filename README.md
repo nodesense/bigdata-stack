@@ -71,6 +71,9 @@ suitable directory (persistent storage for all containers). Bring up the base st
 ```
 docker-compose up -d
 ```
+
+## SKIP FROM HERE
+
 If you also want to start Superset and Hue, then run:
 ```
 docker-compose -f superset/docker-compose.yml up -d
@@ -82,12 +85,14 @@ and initialize:
 ```
 
 docker-compose -f superset/docker-compose.yml run --rm -e FLASK_APP=superset superset flask fab create-db
+```
+## SKIP UNTIL HERE
 
-
-
+```
 ./scripts/init-hue.sh
 ./scripts/init-superset.sh
 ```
+
 The stack should now be up and running and the following services available:
 
  - Hadoop namenode: [http://localhost:50070](http://localhost:50070)
