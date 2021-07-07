@@ -142,3 +142,8 @@ The scripts directory contains some helper scripts:
  - `init-superset.sh`: Initialize Superset database and add Presto as data source
  - `presto-cli.sh`: Launch Presto CLI (downloads jar if needed)
 
+
+
+docker stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.NetIO}}\t{{.BlockIO}}\t{{.PIDs}}"
+
+
