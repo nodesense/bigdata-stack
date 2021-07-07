@@ -20,9 +20,6 @@ services:
       - CLUSTER_NAME=bigdata1
     env_file:
       - ./config/hadoop-hive.env
-    ports:
-      - "50070:50070"
-      - "8020:8020"
     network_mode: "host"
 
   datanode:
@@ -36,9 +33,6 @@ services:
       - ./config/hadoop-hive.env
     environment:
       SERVICE_PRECONDITION: "namenode:50070"
-    ports:
-      - "50075:50075"
-      - "50010:50010"
     network_mode: "host"
 
 
@@ -55,9 +49,6 @@ services:
       SERVICE_PRECONDITION: "hive-metastore:9083"
       HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
       HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
-    ports:
-      - "10000:10000"
-      - "10002:10002"
     network_mode: "host"
 
   hive-metastore:
@@ -71,8 +62,6 @@ services:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
       HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
       HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
-    ports:
-      - "9083:9083"
     
     network_mode: "host"
 
@@ -88,8 +77,6 @@ services:
     container_name: postgresdb
     hostname: ${HOSTNAME}
     restart: always
-    ports:
-      - "5432:5432"
     environment:
       #POSTGRES_DB: bigdb
       POSTGRES_MULTIPLE_DATABASES: bigdb,hue,superset,grafana
@@ -110,8 +97,6 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
         - ${DATADIR}/pgadmin:/root/.pgadmin
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
     restart: unless-stopped
     network_mode: "host"
  
@@ -122,8 +107,6 @@ services:
     restart: always
     depends_on:
       - postgresdb
-    ports:
-      - "8888:8888"
     volumes:
       - ./hue/config/hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
     
