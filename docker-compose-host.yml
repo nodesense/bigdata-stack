@@ -1,0 +1,113 @@
+version: "3.5"
+
+networks:
+  base_net:
+    external:
+      name: bigdatanet
+
+services:
+
+  # Hadoop
+
+  namenode:
+    image: johannestang/hadoop-namenode:2.0.0-hadoop2.8.5-java8
+    container_name: namenode
+    hostname: ${HOSTNAME}
+    restart: always
+    volumes:
+      - ${DATADIR}/namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=bigdata1
+    env_file:
+      - ./config/hadoop-hive.env
+    network_mode: "host"
+
+  datanode:
+    image: johannestang/hadoop-datanode:2.0.0-hadoop2.8.5-java8
+    container_name: datanode
+    hostname: ${HOSTNAME}
+    restart: always
+    volumes:
+      - ${DATADIR}/datanode:/hadoop/dfs/data
+    env_file:
+      - ./config/hadoop-hive.env
+    environment:
+      SERVICE_PRECONDITION: "namenode:50070"
+    network_mode: "host"
+
+
+  # Hive
+
+  hive-server:
+    image: johannestang/hive:2.3.6-postgresql-metastore-s3
+    restart: always
+    hostname: ${HOSTNAME}
+    env_file:
+      - ./config/hadoop-hive.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:9083"
+      HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
+      HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
+    network_mode: "host"
+
+  hive-metastore:
+    image: johannestang/hive:2.3.6-postgresql-metastore-s3
+    restart: always
+    hostname: ${HOSTNAME}
+    env_file:
+      - ./config/hadoop-hive.env
+    command: /opt/hive/bin/hive --service metastore
+    environment:
+      SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
+      HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
+      HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
+    
+    network_mode: "host"
+
+  hive-metastore-postgresql:
+    hostname: ${HOSTNAME}
+    image: bde2020/hive-metastore-postgresql:2.3.0
+    volumes:
+      - ${DATADIR}/hive-metastore:/var/lib/postgresql/data
+    network_mode: "host"
+   
+  postgresdb:
+    image: postgres:12.7
+    container_name: postgresdb
+    hostname: ${HOSTNAME}
+    restart: always
+    environment:
+      #POSTGRES_DB: bigdb
+      POSTGRES_MULTIPLE_DATABASES: bigdb,hue,superset,grafana
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+    volumes:
+      - ${DATADIR}/postgresdb/postgres:/var/lib/postgresql/data
+      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    network_mode: "host"
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    hostname: ${HOSTNAME}
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+        - ${DATADIR}/pgadmin:/root/.pgadmin
+    restart: unless-stopped
+    network_mode: "host"
+ 
+  hue:
+    image: johannestang/hue:4.5.0-presto326
+    container_name: hue
+    hostname: ${HOSTNAME}
+    restart: always
+    depends_on:
+      - postgresdb
+    volumes:
+      - ./hue/config/hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
+    
+    network_mode: "host"
