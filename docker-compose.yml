@@ -12,7 +12,7 @@ services:
   namenode:
     image: johannestang/hadoop-namenode:2.0.0-hadoop2.8.5-java8
     container_name: namenode
-    hostname: namenode.bigdata.training.sh
+    hostname: bigdata.training.sh
     restart: always
     volumes:
       - ${DATADIR}/namenode:/hadoop/dfs/name
@@ -20,17 +20,12 @@ services:
       - CLUSTER_NAME=bigdata1
     env_file:
       - ./config/hadoop-hive.env
-    ports:
-      - "50070:50070"
-      - "8020:8020"
-    networks:
-      base_net:
-        ipv4_address: 172.20.0.100
+    network_mode: "host"
 
   datanode:
     image: johannestang/hadoop-datanode:2.0.0-hadoop2.8.5-java8
     container_name: datanode
-    hostname: datanode.bigdata.training.sh
+    hostname: bigdata.training.sh
     restart: always
     volumes:
       - ${DATADIR}/datanode:/hadoop/dfs/data
@@ -38,31 +33,22 @@ services:
       - ./config/hadoop-hive.env
     environment:
       SERVICE_PRECONDITION: "namenode:50070"
-    ports:
-      - "50075:50075"
-      - "50010:50010"
-    networks:
-      base_net:
-        ipv4_address: 172.20.0.101
-
-
+    network_mode: "host"
   # Hive
 
   hive-server:
     image: johannestang/hive:2.3.6-postgresql-metastore-s3
+    container_name: hive_server
+    hostname: bigdata.training.sh
     restart: always
     env_file:
       - ./config/hadoop-hive.env
     environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083"
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://bigdata.training.sh/metastore"
+      SERVICE_PRECONDITION: "bigdata.training.sh:9083"
       HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
       HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
-    ports:
-      - "10000:10000"
-      - "10002:10002"
-    networks:
-      - base_net
+    network_mode: "host"
 
   hive-metastore:
     image: johannestang/hive:2.3.6-postgresql-metastore-s3
@@ -71,125 +57,25 @@ services:
       - ./config/hadoop-hive.env
     command: /opt/hive/bin/hive --service metastore
     environment:
-      SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
+      SERVICE_PRECONDITION: "bigdata.training.sh:50070 bigdata.training.sh:50075 bigdata.training.sh:5432"
       HDFS_CONF_fs_s3a_access_key: ${MINIO_ACCESS_KEY}
       HDFS_CONF_fs_s3a_secret_key: ${MINIO_SECRET_KEY}
-    ports:
-      - "9083:9083"
-    networks:
-      - base_net
+    network_mode: "host"
 
   hive-metastore-postgresql:
     image: bde2020/hive-metastore-postgresql:2.3.0
     volumes:
       - ${DATADIR}/hive-metastore:/var/lib/postgresql/data
-    networks:
-      - base_net
-
-  # Presto
-
-  presto-coordinator:
-    image: johannestang/prestodb:326
-    restart: always
-    ports:
-      - "8080:8080"
-    environment:
-      S3_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      S3_SECRET_KEY: ${MINIO_SECRET_KEY}
-      S3_ENDPOINT: "http://minio:9000"
-    volumes:
-      - ./config/presto:/opt/presto/etc
-    networks:
-      - base_net
-
-  # Minio
-
-  minio:
-    image: minio/minio:RELEASE.2019-10-12T01-39-57Z
-    restart: always
-    ports:
-      - "9000:9000"
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    volumes:
-      - ${DATADIR}/minio/data:/data
-      - ${DATADIR}/minio/config:/root/.minio
-    command: server /data
-    networks:
-      - base_net
-
-
-
-  postgresdb:
-    image: postgres:12.7
-    container_name: postgresdb
-    hostname: postgresdb.bigdata.training.sh
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      #POSTGRES_DB: bigdb
-      POSTGRES_MULTIPLE_DATABASES: bigdb,hue,superset,grafana
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-    volumes:
-      - ${DATADIR}/postgresdb/postgres:/var/lib/postgresql/data
-      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
-    networks:
-      - base_net
-
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-        - ${DATADIR}/pgadmin:/root/.pgadmin
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
-    restart: unless-stopped
-    networks:
-      - base_net
-
-  superset:
-    image: amancevice/superset:0.35.1
-    container_name: superset
-    hostname: superset.bigdata.training.sh
-    restart: always
-    depends_on:
-      - postgresdb
-      - superset-redis
-    environment:
-      MAPBOX_API_KEY: ${MAPBOX_API_KEY}
-    ports:
-      - "8088:8088"
-    volumes:
-      - ./superset/config/superset_config.py:/etc/superset/superset_config.py
-    networks:
-      - base_net
-
-  superset-redis:
-    image: redis:3.2
-    restart: always
-    volumes:
-      - ${DATADIR}/superset/redis:/data
-    networks:
-      - base_net
-
+    network_mode: "host"
+   
 
   hue:
     image: johannestang/hue:4.5.0-presto326
     container_name: hue
-    hostname: hue.bigdata.training.sh
+    hostname: ${HOSTNAME}
     restart: always
-    depends_on:
-      - postgresdb
-    ports:
-      - "8888:8888"
     volumes:
       - ./hue/config/hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
-    networks:
-      - base_net
+      - ${DATADIR}/hue-database:/database
+    
+    network_mode: "host"

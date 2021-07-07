@@ -17,6 +17,18 @@ The data shall be stored in below host path..
 
 ```
 
+echo 'http://{{HOSTNAME}}/bingo'  | sed    "s/{{HOSTNAME}}/$HOSTNAME/g"
+
+
+sed   "s/{{HOSTNAME}}/$HOSTNAME/g" ./config/hadoop-hive.env.template > ./config/hadoop-hive.env
+
+
+sed "s/{{HOSTNAME}}/$HOSTNAME/g"  ./hue/config/hue.ini.template > ./hue/config/hue.ini 
+
+```
+
+```
+
 sudo rm -rf /data
 
 sudo mkdir /data

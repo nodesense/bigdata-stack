@@ -36,15 +36,13 @@
     # Note for Oracle, you can use the Oracle Service Name by setting "host=" and "port=" and then "name=<host>:<port>/<service_name>".
     # Note for MariaDB use the 'mysql' engine.
 
-    
-
     # gk comment out old code start
     engine=postgresql_psycopg2
-    host=bigdata.training.sh
-    port=5432
-    user=hive
-    password=hive
-    name=metastore
+    host={{HOSTNAME}}
+    port=5433
+    user=admin
+    password=admin
+    name=hue
     # gk comment out old code end
 
     # engine=mysql
@@ -190,12 +188,12 @@
 
     [[[default]]]
       # Enter the filesystem uri
-      fs_defaultfs=hdfs://bigdata.training.sh:8020
+      fs_defaultfs=hdfs://{{HOSTNAME}}:8020
 
       # Use WebHdfs/HttpFs as the communication mechanism.
       # Domain should be the NameNode or HttpFs host.
       # Default port is 14000 for HttpFs.
-      webhdfs_url=http://bigdata.training.sh:50070/webhdfs/v1
+      webhdfs_url=http://{{HOSTNAME}}:50070/webhdfs/v1
 
   # Configuration for YARN (MR2)
   # ------------------------------------------------------------------------
@@ -229,7 +227,7 @@
 
   # Host where HiveServer2 is running.
   # If Kerberos security is enabled, use fully-qualified domain name (FQDN).
-  hive_server_host=bigdata.training.sh
+  hive_server_host={{HOSTNAME}}
 
   # Port where HiveServer2 Thrift server runs on.
   ## hive_server_port=10000
