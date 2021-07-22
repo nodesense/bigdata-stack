@@ -11,6 +11,11 @@ Big data stack running in pseudo-distributed mode with the following components:
 
 For more details see the following [post](https://johs.me/posts/big-data-stack-running-sql-queries/).
 
+## ensure host name to machine ip in /etc/hosts file
+
+65.23.52.67 bigdata.training.sh bigdata
+
+
 ## Data Setup 
 
 The data shall be stored in below host path..
